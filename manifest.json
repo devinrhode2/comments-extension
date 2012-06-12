@@ -1,0 +1,32 @@
+{
+   "name": "Facebook comments sidebar",
+   "description": "Now the entire web is social. Comment on any page with Facebook.",
+   "background": {
+      "page": "background/background.html"
+   },
+   "browser_action": {
+     "default_icon": "images/icon19.png",
+     "default_title": "Load facebook comments for this page"
+   },
+   "icons":
+   {
+      "128": "images/icon128.png",
+      "48": "images/icon48.png",
+      "19": "images/icon19.png",
+      "16": "images/icon16.png"
+   },
+   "permissions": [
+      "<all_urls>",
+      "tabs",
+      "clipboardWrite",
+      "contextMenus",
+      "cookies",
+      "idle",
+      "notifications",
+      "unlimitedStorage",
+      "webRequest",
+      "webRequestBlocking",
+      "webNavigation"
+   ],
+   "version": "0.1"
+}
