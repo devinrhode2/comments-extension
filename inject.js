@@ -15,7 +15,7 @@ if (typeof shown === 'undefined') {
   
   //450 width because things start overflowing poorly at smaller widths...
   //facebook designed this at a 450px width
-  window.width = 450;
+  window.width = 400;
   
   //used to flip from display: none and display: block
   window.styleFlip = $.createElement('style', {

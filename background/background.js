@@ -1,6 +1,6 @@
 'use strict';
 log(appName + ' background.js');
-
+//French; Spanish, Italian, Korean, Mandarin, and Cantonese
 if (localStorage.getItem('installed') !== 'installed') {
   localStorage.setItem('installed', 'installed');
   chrome.tabs.create({
@@ -67,18 +67,25 @@ chrome.browserAction.onClicked.addListener(browserActionOnClicked);
 
 window.cache = {};
 
-var updateCommentCount = function updateCommentCount(number) {
+var updateCommentCount = function updateCommentCount(number, tabId) {
   if (number === 0) {
-    chrome.browserAction.setBadgeBackgroundColor({'color': '#D2D9E7'});//<--dull gray. good black: #666
+    chrome.browserAction.setBadgeBackgroundColor({
+      tabId: tabId,
+      'color': '#D2D9E7'//<--dull gray. good black: #666
+    });
   } else {
-    chrome.browserAction.setBadgeBackgroundColor({'color': '#C45D4F'});//<--that's a 50% saturation of the fb red: #F03D25
+    chrome.browserAction.setBadgeBackgroundColor({
+      tabId: tabId,
+      'color': '#C45D4F'//<--that's a 50% saturation of the fb red: #F03D25
+    });
   }
-  chrome.browserAction.setBadgeText({'text': number.toString()});
+  chrome.browserAction.setBadgeText({'text': number.toString(), tabId: tabId});
 };
 
 var newTab = function newTab(tabId, url) {
   //if in cache, return immediately!
   if (!url) {
+    updateCommentCount(0, tabId);
     return warn('falsy url');
   }
   
@@ -89,7 +96,7 @@ var newTab = function newTab(tabId, url) {
     updateCommentCount(cache[url].comments);
   } else {
     if (url.indexOf('http') !== 0) {
-      updateCommentCount(0);
+      updateCommentCount(0, tabId);
       return warn('newTab non-webpage: ' + url);
     }
     GET('https://graph.facebook.com/?ids=' + url, function CommentsGetCallback(resp){
@@ -120,7 +127,7 @@ var newTab = function newTab(tabId, url) {
       if (!cache[url].comments) {
         cache[url].comments = 0;
       }
-      updateCommentCount(cache[url].comments);
+      updateCommentCount(cache[url].comments, tabId);
     });
   }
 };
