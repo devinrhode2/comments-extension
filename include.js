@@ -3,14 +3,10 @@
  *
  * $.class is a wrapper on document.getElementsByClassName
  * $.id is a wrapper on getElementById
- * log('things like', console.log);
+ * log('things like', trickyVaribles);
  * fail('When some bad shit occured.');
  *
- * has: Does a string have a certain substring inside it?
- * Example:
- * if ('http://google.com'.has('https://')) {
- *   console.log('This is a secure page!');
- * } 
+ * has: Does a string have a certain substring inside it? returns boolean
  */
 
 (function includeJSStrict(){
@@ -60,39 +56,47 @@ window.GET = function GET(url, callback){
   ajax.send(url,callback,'GET');
 };
 
-window.GETXml = function GETXml(u, f){
-  var x = new XMLHttpRequest();
-  x.open('GET', u, true);
-  x.onreadystatechange = function() {
-    if(x.readyState == 4) {
-      f(x.responseXML);
-    }
-  };
-  x.send()
-};
-
 window.masterHistory = function masterHistory(){
   //have a master switch on caller.name === 'f' (log) || 'warn' || 'fail' || 'error'
 };
+
+var storedDebug = localStorage.getItem('debug');
+if (storedDebug === null) {
+  //default
+  localStorage.setItem('debug', 'false');
+  window.debug = false;
+  //OVERRIDE
+  localStorage.setItem('debug', 'true');
+  window.debug = true;
+} else {
+  if (storedDebug === 'true') {
+    window.debug = true;  
+  } else if (storedDebug === 'false') {
+    window.debug = false;
+  }
+}
+
 //from HTML5 boilerplate. Paul Irish is awesome. I have no idea why the function name is f...
 window.log = function f() {
   masterHistory(arguments);
-  if (console) { // with if (this.console) I was getting "Uncaught TypeError: Cannot read property 'console' of undefined"
-    var args = arguments;
-    var newarr;
-
-    try {
-        args.callee = f.caller;
-    } catch(e) {
-
-    }
-
-    newarr = [].slice.call(args);
-
-    if (typeof console.log === 'object') {
-        log.apply.call(console.log, console, newarr);
-    } else {
-        console.log.apply(console, newarr);
+  if (debug) {
+    if (console) { // with if (this.console) I was getting "Uncaught TypeError: Cannot read property 'console' of undefined"
+      var args = arguments;
+      var newarr;
+  
+      try {
+          args.callee = f.caller;
+      } catch(e) {
+  
+      }
+  
+      newarr = [].slice.call(args);
+  
+      if (typeof console.log === 'object') {
+          log.apply.call(console.log, console, newarr);
+      } else {
+          console.log.apply(console, newarr);
+      }
     }
   }
 };
@@ -106,13 +110,13 @@ window.fail = function fail(message){
 //Some common pitfall that is handled. Application will continue fine.
 window.warn = function warn(message){
   masterHistory(arguments);
-  console.warn(message);
+  debug && console.warn(message);
   return message;
 };
 //some error where the program will continue, but this scenario really shouldn't be occuring
 window.error = function error(message){
   masterHistory(arguments);
-  console.error(message);
+  debug && console.error(message);
   return message;
 };
 

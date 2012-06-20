@@ -1,12 +1,12 @@
 {
-   "name": "__MSG_extensionName__",
-   "description": "__MSG_extensionDescription__",
+   "name": "Facebook comments sidebar",
+   "description": "Now the entire web is social. Comment on any page with Facebook.",
    "background": {
       "page": "background/background.html"
    },
    "browser_action": {
      "default_icon": "images/icon19.png",
-     "default_title": "__MSG_loadsidebar__"
+     "default_title": "Load facebook comments for this page"
    },
    "icons":
    {

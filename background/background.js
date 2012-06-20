@@ -1,6 +1,5 @@
 'use strict';
 log(appName + ' background.js');
-//French; Spanish, Italian, Korean, Mandarin, and Cantonese
 if (localStorage.getItem('installed') !== 'installed') {
   localStorage.setItem('installed', 'installed');
   chrome.tabs.create({
