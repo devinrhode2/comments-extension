@@ -1,9 +1,10 @@
 'use strict';
+kmpush('background load');
 log(appName + ' background.js');
 if (localStorage.getItem('installed') !== 'installed') {
   localStorage.setItem('installed', 'installed');
   chrome.tabs.create({
-    'url': 'http://devinrhode2.com/fbcomments/welcome.html'
+    'url': chrome.extension.getURL('welcome.html')
   });
 }
 
@@ -36,27 +37,33 @@ var browserActionOnClicked = function browserActionOnClicked(tab) {
     return 'falsy url';
   }
   if (false/*tab.url.indexOf('://') !== 0*/) {
-    return warn('non-webpage tab sent to browserActionOnClicked');
+    return 'non-webpage tab sent to browserActionOnClicked';
   } else {
     if (tab.url.has('://chrome.google.com/webstore')) {
-      if (confirm('Google blocks extensions from working on the WebStore. Press OK to send a complaint to Google.')) {
+      if (confirm('Google blocks extensions from working on the WebStore. '+
+                  'Press OK to send a complaint to Google.')                ) {
         chrome.tabs.create({
           'url': 'http://support.google.com/chrome_webstore/bin/request.py?contact_type=cws_user_contact'
         });
       }
     } else {
       if (needUpdate) {
-        chrome.tabs.executeScript(tab.id, {'code': 'alert("Press Ok to update facebook comments sidebar");'}, function needUpdateCallback(){
+        chrome.tabs.executeScript(tab.id, {
+          'code': 'alert("Press Ok to update facebook comments sidebar");'
+          }, function needUpdateCallback(){
           chrome.tabs.create({
             'url': 'https://chrome.google.com/webstore/detail/...'
           });
         });
       }
+      kmpush('loaded comments');
       var tabLabel = 'execution time for: ' + tab.url;
       console.time(tabLabel);
       chrome.tabs.executeScript(tab.id, {'file': 'include.js'}, function(){
         chrome.tabs.executeScript(tab.id, {'file': 'inject.js'}, function(){
-          console.timeEnd(tabLabel);
+          chrome.tabs.executeScript(tab.id, {'file': 'kiss-include.js'}, function(){
+            console.timeEnd(tabLabel);
+          });
         });
       });
     }
@@ -85,7 +92,7 @@ var newTab = function newTab(tabId, url) {
   //if in cache, return immediately!
   if (!url) {
     updateCommentCount(0, tabId);
-    return warn('falsy url');
+    return 'falsy url';
   }
   
   //clean url...
@@ -96,7 +103,7 @@ var newTab = function newTab(tabId, url) {
   } else {
     if (url.indexOf('http') !== 0) {
       updateCommentCount(0, tabId);
-      return warn('newTab non-webpage: ' + url);
+      return 'newTab non-webpage: ' + url;
     }
     GET('https://graph.facebook.com/?ids=' + url, function CommentsGetCallback(resp){
       var resp = JSON.parse(resp);

@@ -1,6 +1,7 @@
 (function injectJSStrict(){
 'use strict';
 log(appName + ' inject.js');
+kmpush('clicked Sidebar');
 
 if (typeof shown === 'undefined') {
   //this if branch only executes once. Yes, shown is still defined over multiple script injections
@@ -15,7 +16,7 @@ if (typeof shown === 'undefined') {
   
   //450 width because things start overflowing poorly at smaller widths...
   //facebook designed this at a 450px width
-  window.width = 40	0;
+  window.width = 400;
   
   //used to flip from display: none and display: block
   window.styleFlip = $.createElement('style', {

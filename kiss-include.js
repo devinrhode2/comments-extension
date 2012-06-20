@@ -10,7 +10,11 @@ var KM_COOKIE_DOMAIN = 'extension.thescoutapp.com';
 //a nicer wrapper, instead of _kmq.push(['asdf', 'adf']) it's just kiss('asdf', 'adf')
 window.kmpush = function kmpush(){
   var argsArray = [].slice.call(arguments);
-  _kmq.push(argsArray);
+  if (argsArray.length === 1) {
+    _kmq.push(['record', argsArray[0]]);
+  } else {
+    _kmq.push(argsArray);
+  }
 };
 
 (function kissIncludeJs(){
@@ -30,10 +34,6 @@ if (chrome.browserAction) {
   _kms('https://i.kissmetrics.com/i.js');
   _kms('https://doug1izaerwt3.cloudfront.net/' + _kmk + '.1.js');
   
-  _kmq.push(function kmqCallbac(){
-    console.log('loaded!');
-  });
-  
   chrome.extension.onConnect.addListener(function(port) {
     if (port.name === portName) {
       port.onMessage.addListener(function(msg) {
@@ -45,11 +45,11 @@ if (chrome.browserAction) {
       });
     }
   });
-
+  console.log('kiss-include.js hooked up on background page');
 } else {
   //content script, setup api buffer
   var kissmetricsPort = chrome.extension.connect({name: portName});  
-  _kmq.push = function _kmqPush(pushedArray){
+  window._kmq.push = function _kmqPush(pushedArray){
     if (arguments.length !== 1) {
       console.error('too many arguments, only one is expected. arguments:\n', arguments);
       alert(message);
@@ -57,11 +57,7 @@ if (chrome.browserAction) {
     }
     kissmetricsPort.postMessage({bufferedPush: pushedArray});
   };
+  console.log('kiss-include.js hooked up in content_script');
 }
 
-//some usage: identify
-
-kmpush('identify', 'devin');
-_kmq.push(['identify', 'name@email.com']);
-kmpush('record', 'Visited site');
 }());

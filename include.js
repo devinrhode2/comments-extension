@@ -60,6 +60,18 @@ window.masterHistory = function masterHistory(){
   //have a master switch on caller.name === 'f' (log) || 'warn' || 'fail' || 'error'
 };
 
+window.kmpush = function kmpush(){
+  if (typeof _kmq === 'undefined') {
+    window._kmq = [];
+  }
+  var argsArray = [].slice.call(arguments);
+  if (argsArray.length === 1) {
+    _kmq.push('record', argsArray[0]);
+  } else {
+    _kmq.push(argsArray);
+  }
+};
+
 var storedDebug = localStorage.getItem('debug');
 if (storedDebug === null) {
   //default

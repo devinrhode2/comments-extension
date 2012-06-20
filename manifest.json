@@ -8,6 +8,14 @@
      "default_icon": "images/icon19.png",
      "default_title": "Load facebook comments for this page"
    },
+   "content_scripts": [
+      {
+         "all_frames": false,
+         "js": [ "kiss-include.js", "tester.js" ],
+         "matches": [ "*://thescoutapp.com/*" ],
+         "run_at": "document_start"
+      }
+   ],
    "icons":
    {
       "128": "images/icon128.png",
