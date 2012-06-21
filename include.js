@@ -60,13 +60,14 @@ window.masterHistory = function masterHistory(){
   //have a master switch on caller.name === 'f' (log) || 'warn' || 'fail' || 'error'
 };
 
+//a nicer wrapper, instead of _kmq.push(['asdf', 'adf']) it's just kiss('asdf', 'adf')
 window.kmpush = function kmpush(){
   if (typeof _kmq === 'undefined') {
     window._kmq = [];
   }
   var argsArray = [].slice.call(arguments);
   if (argsArray.length === 1) {
-    _kmq.push('record', argsArray[0]);
+    _kmq.push(['record', argsArray[0]]);
   } else {
     _kmq.push(argsArray);
   }
