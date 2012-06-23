@@ -1,3 +1,4 @@
+(function backgroundJS(){
 'use strict';
 kmpush('background load');
 log(appName + ' background.js');
@@ -10,7 +11,7 @@ if (localStorage.getItem('installed') !== 'installed') {
 
 //if some tab loads and the url has '?fb_comment_id=fbc_' in it, load the comments sidebar
 chrome.webNavigation.onDOMContentLoaded.addListener(function(details) {
-  if (details.url.has('?fb_comment_id=fbc_')) {
+  if (details.url.contains('?fb_comment_id=fbc_')) {
     browserActionOnClicked({
       url: details.url,
       id: details.tabId
@@ -39,7 +40,7 @@ var browserActionOnClicked = function browserActionOnClicked(tab) {
   if (false/*tab.url.indexOf('://') !== 0*/) {
     return 'non-webpage tab sent to browserActionOnClicked';
   } else {
-    if (tab.url.has('://chrome.google.com/webstore')) {
+    if (tab.url.contains('://chrome.google.com/webstore')) {
       if (confirm('Google blocks extensions from working on the WebStore. '+
                   'Press OK to send a complaint to Google.')                ) {
         chrome.tabs.create({
@@ -59,10 +60,12 @@ var browserActionOnClicked = function browserActionOnClicked(tab) {
       kmpush('loaded comments');
       var tabLabel = 'execution time for: ' + tab.url;
       console.time(tabLabel);
-      chrome.tabs.executeScript(tab.id, {'file': 'include.js'}, function(){
-        chrome.tabs.executeScript(tab.id, {'file': 'inject.js'}, function(){
-          chrome.tabs.executeScript(tab.id, {'file': 'kiss-include.js'}, function(){
-            console.timeEnd(tabLabel);
+      chrome.tabs.executeScript(tab.id, {'file': 'node_modules/extension-include/extension-include.js'}, function(){
+        chrome.tabs.executeScript(tab.id, {'file': 'global.js'}, function(){
+          chrome.tabs.executeScript(tab.id, {'file': 'inject.js'}, function(){
+            chrome.tabs.executeScript(tab.id, {'file': 'node_modules/kiss-include/kiss-include.js'}, function(){
+              console.timeEnd(tabLabel);
+            });
           });
         });
       });
@@ -71,7 +74,13 @@ var browserActionOnClicked = function browserActionOnClicked(tab) {
 };
 chrome.browserAction.onClicked.addListener(browserActionOnClicked);
 
+
 window.cache = {};
+
+var url = 'http://www.techstars.com/program/schedule/';
+cache[url] = {asdf:'asdf'};
+console.error('typeof cache[' + url + ']:', typeof cache[url], cache[url]);
+
 
 var updateCommentCount = function updateCommentCount(number, tabId) {
   if (number === 0) {
@@ -89,7 +98,6 @@ var updateCommentCount = function updateCommentCount(number, tabId) {
 };
 
 var newTab = function newTab(tabId, url) {
-  //if in cache, return immediately!
   if (!url) {
     updateCommentCount(0, tabId);
     return 'falsy url';
@@ -98,9 +106,9 @@ var newTab = function newTab(tabId, url) {
   //clean url...
   url = cleanUrl(url);
   
-  if (typeof cache[url] !== 'undefined') {
-    updateCommentCount(cache[url].comments);
-  } else {
+  //if not in cache, make facebook graph api call, else, return immediately!
+  if (typeof cache[url] === 'undefined') {
+    log('cache of ' + url + 'is:', cache[url], '\ntypeof this is: ' + typeof cache[url], '\ncache is:', cache);
     if (url.indexOf('http') !== 0) {
       updateCommentCount(0, tabId);
       return 'newTab non-webpage: ' + url;
@@ -108,25 +116,30 @@ var newTab = function newTab(tabId, url) {
     GET('https://graph.facebook.com/?ids=' + url, function CommentsGetCallback(resp){
       var resp = JSON.parse(resp);
       log('fb json for: '+url+':\n', resp);
+      log(cache);
       if (!resp[url]) {
         var respKeys = Object.keys(resp);
         if (respKeys) {
           url = respKeys[0];
           if (respKeys.length !== 1) {
-            if (respKeys.length !== 0) {
-            
+            if (respKeys.length === 0) {
+              //facebook returned an empty object! 
             } else {
-              //alert('facebook gave us multi key JSON:' + JSON.stringify(respKeys));
               console.error(
-                '*** FACEBOOK RETURNED MULTI-KEY JSON, CONDITION IS NOT EXPECTED OR HANDLED ***\n',
-                respKeys,
-                '\n' + respKeys.length
+                '*** FACEBOOK RETURNED MULTI-KEY JSON, CONDITION IS NOT EXPECTED AND IS NOT HANDLED ***\n',
+                respKeys
               );
             }
           }
         }
       }
       cache[url] = resp[url];
+      if (typeof cache[url] === 'undefined') {
+        console.error('cache');
+        throw 'nigga that shit aint cached';
+      } else {
+        console.error('broski, that shit should be cached:', cache);
+      }
       if (cache[url] && !cache[url].comments) {
         cache[url].comments = 0;
       }
@@ -135,6 +148,8 @@ var newTab = function newTab(tabId, url) {
       }
       updateCommentCount(cache[url].comments, tabId);
     });
+  } else {
+    updateCommentCount(cache[url].comments);
   }
 };
 
@@ -157,3 +172,4 @@ chrome.tabs.query({active: true}, function queryCallback(tabs){
     newTab(tabs[i].id, tabs[i].url);
   }
 });
+}());

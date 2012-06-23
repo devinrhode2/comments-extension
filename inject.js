@@ -1,7 +1,6 @@
 (function injectJSStrict(){
 'use strict';
 log(appName + ' inject.js');
-kmpush('clicked Sidebar');
 
 if (typeof shown === 'undefined') {
   //this if branch only executes once. Yes, shown is still defined over multiple script injections
