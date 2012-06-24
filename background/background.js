@@ -21,7 +21,7 @@ chrome.webNavigation.onDOMContentLoaded.addListener(function(details) {
 
 window.needUpdate = false;
 GET('../manifest.json', function manifestGET(manifest){
-  manifest = JSON.parse(manifest);
+  manifest = JSON.guardedParse(manifest);
   var version = manifest.version;
   GET('http://thescoutapp.com/extension/fb-comments-sidebar-version.json', function versionCheckCallback(version){
     if (parseFloat(version) > version) {
@@ -60,15 +60,17 @@ var browserActionOnClicked = function browserActionOnClicked(tab) {
       kmpush('loaded comments');
       var tabLabel = 'execution time for: ' + tab.url;
       console.time(tabLabel);
-      chrome.tabs.executeScript(tab.id, {'file': 'node_modules/extension-include/extension-include.js'}, function(){
-        chrome.tabs.executeScript(tab.id, {'file': 'global.js'}, function(){
-          chrome.tabs.executeScript(tab.id, {'file': 'inject.js'}, function(){
-            chrome.tabs.executeScript(tab.id, {'file': 'node_modules/kiss-include/kiss-include.js'}, function(){
+      try {
+        chrome.tabs.executeScript(tab.id, {'file': 'node_modules/extension-include/extension-include.js'}, function(){
+          chrome.tabs.executeScript(tab.id, {'file': 'global.js'}, function(){
+            chrome.tabs.executeScript(tab.id, {'file': 'inject.js'}, function(){
               console.timeEnd(tabLabel);
             });
           });
         });
-      });
+      } catch (e) {
+        console.error('caught it', e);
+      }
     }
   }
 };
@@ -76,11 +78,6 @@ chrome.browserAction.onClicked.addListener(browserActionOnClicked);
 
 
 window.cache = {};
-
-var url = 'http://www.techstars.com/program/schedule/';
-cache[url] = {asdf:'asdf'};
-console.error('typeof cache[' + url + ']:', typeof cache[url], cache[url]);
-
 
 var updateCommentCount = function updateCommentCount(number, tabId) {
   if (number === 0) {
@@ -108,15 +105,16 @@ var newTab = function newTab(tabId, url) {
   
   //if not in cache, make facebook graph api call, else, return immediately!
   if (typeof cache[url] === 'undefined') {
-    log('cache of ' + url + 'is:', cache[url], '\ntypeof this is: ' + typeof cache[url], '\ncache is:', cache);
     if (url.indexOf('http') !== 0) {
       updateCommentCount(0, tabId);
       return 'newTab non-webpage: ' + url;
     }
     GET('https://graph.facebook.com/?ids=' + url, function CommentsGetCallback(resp){
-      var resp = JSON.parse(resp);
+      var resp = JSON.guardedParse(resp);
       log('fb json for: '+url+':\n', resp);
-      log(cache);
+      if (resp === false) {
+        return 'JSON.guardedParse returned false';
+      }
       if (!resp[url]) {
         var respKeys = Object.keys(resp);
         if (respKeys) {
@@ -134,12 +132,6 @@ var newTab = function newTab(tabId, url) {
         }
       }
       cache[url] = resp[url];
-      if (typeof cache[url] === 'undefined') {
-        console.error('cache');
-        throw 'nigga that shit aint cached';
-      } else {
-        console.error('broski, that shit should be cached:', cache);
-      }
       if (cache[url] && !cache[url].comments) {
         cache[url].comments = 0;
       }

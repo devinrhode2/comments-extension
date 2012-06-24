@@ -1,11 +1,11 @@
 (function globalJS(){
 'use strict';
 window.appName = 'fb-comments-sidebar';
-window._kmk = 'e87e4dbcaaa550b06f2bbdd90fc9b49caae0b9b9';//asynchronous operation. 
+window._kmk = 'e87e4dbcaaa550b06f2bbdd90fc9b49caae0b9b9';//asynchronous operation.
+window.KM_COOKIE_DOMAIN = 'comments-extension.thescoutapp.com'; 
 
-storageDefault('debug','true');
-//log('debug:', localStorage.getItem('debug'));
-window.debug = localStorage.getItem('debug').toBoolean();
+storageDefault('debug','truthy');//false is the empty string: ''
+window.debug = localStorage.getItem('debug');
 
 //just for this extension
 window.cleanUrl = function cleanUrl(cleanedUrl){

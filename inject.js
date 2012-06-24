@@ -5,6 +5,11 @@ log(appName + ' inject.js');
 if (typeof shown === 'undefined') {
   //this if branch only executes once. Yes, shown is still defined over multiple script injections
   window.shown = true;
+  
+  window.onerror = function onerror(){
+    console.error('onerror:', arguments);
+  };
+  
   window.html = document.documentElement;
   window.body = document.body;
   
