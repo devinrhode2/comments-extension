@@ -111,10 +111,10 @@ var newTab = function newTab(tabId, url) {
     }
     GET('https://graph.facebook.com/?ids=' + url, function CommentsGetCallback(resp){
       var resp = JSON.guardedParse(resp);
-      log('fb json for: '+url+':\n', resp);
       if (resp === false) {
         return 'JSON.guardedParse returned false';
       }
+      log('fb json for: '+url+':\n', resp);
       if (!resp[url]) {
         var respKeys = Object.keys(resp);
         if (respKeys) {
