@@ -3,9 +3,13 @@ Facebook comments sidebar!
 
 Spread love all over the web!
 
-Future ideas:
--Completely hijacking facebook and basically implementing our own faster loading comments
--...
+I've passed this up because of the distribution challenges, and the oddities of notifying people of comments left on their pages. Feel free to take this and do whatever you want with it, because I'm not.
+
+<h2>Future ideas:</h2>
+<ul>
+  <li>-Completely hijacking facebook and basically implementing our own faster loading comments</li>
+  <li>-...</li>
+</ul>
 
 Creator
 ---------------
