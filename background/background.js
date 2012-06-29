@@ -1,6 +1,6 @@
 (function backgroundJS(){
 'use strict';
-kmpush('background load');
+event('background load');
 log(appName + ' background.js');
 if (localStorage.getItem('installed') !== 'installed') {
   localStorage.setItem('installed', 'installed');
@@ -57,7 +57,7 @@ var browserActionOnClicked = function browserActionOnClicked(tab) {
           });
         });
       }
-      kmpush('loaded comments');
+      event('loaded comments');
       var tabLabel = 'execution time for: ' + tab.url;
       console.time(tabLabel);
       try {

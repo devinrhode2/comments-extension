@@ -33,12 +33,14 @@ if (typeof shown === 'undefined') {
   adjustHtmlMargin(width);
   var comments = $.createElement('div', {
     className: 'fb-comments',
-    id: appName,
+    id: appName/*
+,
     innerHTML: '<p style="text-align: center;\
                           font-size: 20px;\
                           margin-top: 24px;\
                           font-family: arial;\
                           text-shadow: 0px 1px 1px white;">Loading...</p>'
+*/
    }, {
     style: '\
       overflow: auto;\
